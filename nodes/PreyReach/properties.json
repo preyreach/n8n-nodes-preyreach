@@ -1,0 +1,115 @@
+[
+  {
+    "displayName": "Operation",
+    "name": "operation",
+    "type": "options",
+    "noDataExpression": true,
+    "options": [
+      {
+        "name": "Account",
+        "value": "account",
+        "description": "Show which Preyreach account or API key authenticated this MCP session",
+        "action": "Account in PreyReach"
+      },
+      {
+        "name": "Get Search",
+        "value": "get_search",
+        "description": "Get a stored MCP search and its background enrichment progress. Keep calling with the same searchId while status is enriching. This read-only status check does not charge additional credits",
+        "action": "Get Search in PreyReach"
+      },
+      {
+        "name": "List Saved Leads",
+        "value": "list_saved_leads",
+        "description": "List saved leads for the connected Preyreach user. Requires OAuth",
+        "action": "List Saved Leads in PreyReach"
+      },
+      {
+        "name": "Save Leads",
+        "value": "save_leads",
+        "description": "Save one or more lead objects to the connected Preyreach user's saved list. Requires OAuth",
+        "action": "Save Leads in PreyReach"
+      },
+      {
+        "name": "Search Leads",
+        "value": "search_leads",
+        "description": "Search live local-business leads and automatically start durable contact enrichment. Returns a searchId plus progress. If status is enriching, call get_search with that searchId until completed",
+        "action": "Search Leads in PreyReach"
+      }
+    ],
+    "default": "account"
+  },
+  {
+    "displayName": "This operation changes data or may use account credits. Review the inputs and the product permissions before running this workflow.",
+    "name": "writeNotice",
+    "type": "notice",
+    "default": "",
+    "displayOptions": {
+      "show": {
+        "operation": [
+          "save_leads",
+          "search_leads"
+        ]
+      }
+    }
+  },
+  {
+    "displayName": "Confirm Write Operation",
+    "name": "confirmWrite",
+    "type": "boolean",
+    "default": false,
+    "description": "Whether you authorize this workflow to run the selected write operation, including any applicable product credits",
+    "displayOptions": {
+      "show": {
+        "operation": [
+          "save_leads",
+          "search_leads"
+        ]
+      }
+    }
+  },
+  {
+    "displayName": "Search Id",
+    "name": "get_search__searchId",
+    "type": "string",
+    "default": "",
+    "required": true,
+    "description": "The searchId returned by search_leads",
+    "displayOptions": {
+      "show": {
+        "operation": [
+          "get_search"
+        ]
+      }
+    }
+  },
+  {
+    "displayName": "Leads",
+    "name": "save_leads__leads",
+    "type": "json",
+    "default": "[]",
+    "required": true,
+    "description": "The leads for this operation",
+    "displayOptions": {
+      "show": {
+        "operation": [
+          "save_leads"
+        ]
+      }
+    }
+  },
+  {
+    "displayName": "Prompt",
+    "name": "search_leads__prompt",
+    "type": "string",
+    "default": "",
+    "required": true,
+    "description": "Example: find dentists in Austin with website and phone",
+    "displayOptions": {
+      "show": {
+        "operation": [
+          "search_leads"
+        ]
+      }
+    }
+  }
+]

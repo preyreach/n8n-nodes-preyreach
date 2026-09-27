@@ -1,0 +1,20 @@
+{
+  "node": "n8n-nodes-preyreach.preyreach",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": [
+    "Productivity"
+  ],
+  "resources": {
+    "credentialDocumentation": [
+      {
+        "url": "https://github.com/preyreach/n8n-nodes-preyreach#authentication"
+      }
+    ],
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/preyreach/n8n-nodes-preyreach#readme"
+      }
+    ]
+  }
+}

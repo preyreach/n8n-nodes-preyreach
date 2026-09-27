@@ -1,0 +1,104 @@
+[
+  {
+    "name": "account",
+    "title": "Account",
+    "description": "Show which Preyreach account or API key authenticated this MCP session.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false
+    }
+  },
+  {
+    "name": "get_search",
+    "title": "Get Preyreach Search",
+    "description": "Get a stored MCP search and its background enrichment progress. Keep calling with the same searchId while status is enriching. This read-only status check does not charge additional credits.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "searchId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The searchId returned by search_leads."
+        }
+      },
+      "required": [
+        "searchId"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false
+    }
+  },
+  {
+    "name": "list_saved_leads",
+    "title": "List Saved Leads",
+    "description": "List saved leads for the connected Preyreach user. Requires OAuth.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false
+    }
+  },
+  {
+    "name": "save_leads",
+    "title": "Save Leads",
+    "description": "Save one or more lead objects to the connected Preyreach user's saved list. Requires OAuth.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "leads": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "leads"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false
+    }
+  },
+  {
+    "name": "search_leads",
+    "title": "Search Preyreach Leads",
+    "description": "Search live local-business leads and automatically start durable contact enrichment. Returns a searchId plus progress. If status is enriching, call get_search with that searchId until completed.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "Example: find dentists in Austin with website and phone."
+        }
+      },
+      "required": [
+        "prompt"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false
+    }
+  }
+]
