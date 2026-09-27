@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-preyreach",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "n8n community node for PreyReach: OAuth account connection and 5 workflow operations.",
   "license": "MIT",
   "homepage": "https://preyreach.com",
@@ -14,7 +14,7 @@
   "author": {
     "name": "PreyReach",
     "url": "https://preyreach.com",
-    "email": "codex@users.noreply.github.com"
+    "email": "saeedmshdi@gmail.com"
   },
   "repository": {
     "type": "git",
