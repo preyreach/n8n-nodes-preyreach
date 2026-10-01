@@ -2,7 +2,7 @@
   {
     "name": "account",
     "title": "Account",
-    "description": "Show which Preyreach account or API key authenticated this MCP session.",
+    "description": "Read the API key name and current search allowance. No account secrets are returned.",
     "inputSchema": {
       "type": "object",
       "properties": {},
@@ -16,7 +16,7 @@
   {
     "name": "get_search",
     "title": "Get Preyreach Search",
-    "description": "Get a stored MCP search and its background enrichment progress. Keep calling with the same searchId while status is enriching. This read-only status check does not charge additional credits.",
+    "description": "Read the status and results of a search owned by this API key.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -37,50 +37,9 @@
     }
   },
   {
-    "name": "list_saved_leads",
-    "title": "List Saved Leads",
-    "description": "List saved leads for the connected Preyreach user. Requires OAuth.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {},
-      "additionalProperties": false
-    },
-    "annotations": {
-      "readOnlyHint": true,
-      "destructiveHint": false
-    }
-  },
-  {
-    "name": "save_leads",
-    "title": "Save Leads",
-    "description": "Save one or more lead objects to the connected Preyreach user's saved list. Requires OAuth.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {
-        "leads": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 30,
-          "items": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        }
-      },
-      "required": [
-        "leads"
-      ],
-      "additionalProperties": false
-    },
-    "annotations": {
-      "readOnlyHint": false,
-      "destructiveHint": false
-    }
-  },
-  {
     "name": "search_leads",
     "title": "Search Preyreach Leads",
-    "description": "Search live local-business leads and automatically start durable contact enrichment. Returns a searchId plus progress. If status is enriching, call get_search with that searchId until completed.",
+    "description": "Submit a native REST search. Returns an id and pollUrl; use Get Search until completed. This consumes the API key search allowance.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -99,6 +58,28 @@
     "annotations": {
       "readOnlyHint": false,
       "destructiveHint": false
+    }
+  },
+  {
+    "name": "enrich_search",
+    "title": "Enrich Search",
+    "description": "Enrich a completed search result without charging those leads again.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "searchId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "searchId"
+      ],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false
     }
   }
 ]

@@ -1,65 +1,38 @@
-# n8n-nodes-preyreach
+# PreyReach for n8n
 
-Connect [**PreyReach**](https://preyreach.com) to n8n workflows using your own account. This package exposes 5 named operations through the product's authenticated API, with form fields for required inputs and optional fields you choose explicitly.
+Build workflows with the [PreyReach](https://preyreach.com) REST API. This community node sends ordinary HTTP resource requests and returns JSON responses. It does not connect to an MCP server or use JSON-RPC.
 
 ## Installation
 
-For self-hosted n8n, open **Settings → Community Nodes → Install** and enter `n8n-nodes-preyreach`. On n8n Cloud, installation depends on n8n's community-node verification; npm publication alone does not make a node verified.
-
-Use n8n **2.40.7 or newer**, with OAuth dynamic client registration support. Older installations should upgrade before using this credential.
+Install `n8n-nodes-preyreach` from **Settings → Community nodes** in your n8n instance. You can also install the npm package in a self-hosted n8n installation.
 
 ## Authentication
 
-1. Add the **PreyReach** node and create a **PreyReach OAuth2 API** credential.
-2. Click **Connect my account**. n8n discovers the product authorization server and registers its own callback automatically.
-3. Sign in to your PreyReach account, check the account and permissions on the consent screen, and approve the connection.
-4. Save the credential and select an operation.
+Create a PreyReach API key in your account and paste it into the **PreyReach API** credential. The key is sent only to `https://api.preyreach.com` as a Bearer header. Credentials can be tested with the account endpoint.
 
-No API key, client secret, browser cookie, or access token belongs in a workflow field. n8n stores the OAuth credential and refreshes tokens. Your account roles, ownership checks, available integrations, plan limits and credits still apply. You can revoke the connection in the product's connected-app settings. This node contacts only `https://mcp.preyreach.com/mcp`; the n8n OAuth flow contacts the product's discovered authorization server.
+**Upgrading from 1.x:** replace the OAuth credential with an API key. Version 2 uses the public REST API's search records and allowance, separately from older MCP searches. Saved-lead operations are not available in this API-key integration. Review existing workflows before running searches.
 
 ## Operations
 
-| Operation | Access | Purpose |
-| --- | --- | --- |
-| Account | Read | Show which Preyreach account or API key authenticated this MCP session. |
-| Get Search | Read | Get a stored MCP search and its background enrichment progress. Keep calling with the same searchId while status is enriching. This read-only status check does not charge additional credits. |
-| List Saved Leads | Read | List saved leads for the connected Preyreach user. Requires OAuth. |
-| Save Leads | Write / may use credits | Save one or more lead objects to the connected Preyreach user's saved list. Requires OAuth. |
-| Search Leads | Write / may use credits | Search live local-business leads and automatically start durable contact enrichment. Returns a searchId plus progress. If status is enriching, call get_search with that searchId until completed. |
+| Operation | HTTP request |
+| --- | --- |
+| Account | `GET /v1/account` |
+| Submit search | `POST /v1/searches` |
+| Get search | `GET /v1/searches/:searchId` |
+| Enrich completed search | `POST /v1/searches/:searchId/enrich` |
 
-## Example workflow
+Search submission returns `id`, `status`, and `pollUrl`. Pass that `id` to Get Search. Use n8n's Wait node between checks while a search is queued or running. Enrichment requires a completed search belonging to the same API key.
 
-Import [the included example](examples/account-check.json), select your credential, and execute the manual trigger. It runs **Account** once and outputs the account response. Replace the trigger with a schedule to build a recurring report, then connect a filter, spreadsheet or notification node.
+## Workflow behavior
 
-For operations that return IDs, map the returned ID into the required field of a second PreyReach node. Returned arrays stay inside the response object; use n8n's **Split Out** node when you need one item per record. Pagination fields are exposed only where the product supports them; advance the cursor/page explicitly rather than assuming all records were fetched.
+Each input item makes one API request and produces one linked output item. Optional pagination fields can be passed through the node's options; list responses retain their next-page cursor or offset. Write operations require the node's explicit confirmation switch. Failed requests stop the workflow unless **Continue On Fail** is enabled. HTTP errors are summarized without including credentials or raw request headers.
 
-## Writes and account limits
+Requests use the fixed product API origin, encode resource identifiers, and do not follow redirects. Use a dedicated account for automation when you want separate access and data. Account ownership, workspace permissions, billing limits, and entitlement checks are enforced by the product API.
 
-Write operations require **Confirm Write Operation**. Review the inputs before enabling it: every workflow execution may repeat the action, create a draft, change account data, or consume product credits depending on the selected operation. The node does not retry write operations automatically. Use read-only operations for monitoring and deduplicate scheduled workflows that create data. Product authorization remains enforced by the server.
+## Development and support
 
-## Error handling
+Run `npm ci`, `npm run lint`, and `npm test` to build and validate the package with the n8n node CLI. Source and release automation: [preyreach/n8n-nodes-preyreach](https://github.com/preyreach/n8n-nodes-preyreach). Report node issues in [GitHub Issues](https://github.com/preyreach/n8n-nodes-preyreach/issues).
 
-- Reconnect OAuth after an authorization failure or revoked grant.
-- Check account permissions and plan limits for forbidden or rate-limited responses.
-- Invalid inputs stop the item before sending a request. Product-specific validation remains authoritative.
-- **On Error → Continue** returns an error item linked to the original input. Failed MCP tool results are never returned as successful data.
-- No passwords, environment variables, or customer data are bundled. No external runtime dependencies are installed by this package.
+Product: [PreyReach](https://preyreach.com) · [Privacy](https://preyreach.com/privacy/) · [Agent skill](https://github.com/preyreach/agent-skill) · [MCP integration](https://github.com/preyreach/mcp-server)
 
-## Development
-
-```sh
-npm ci --ignore-scripts
-npm run lint
-npm test
-```
-
-Releases are built and tested in [GitHub Actions](https://github.com/preyreach/n8n-nodes-preyreach/actions), then published to npm with provenance. Public snapshots use GitHub Actions bot attribution.
-
-## Links
-
-- [Website](https://preyreach.com)
-- [Privacy policy](https://preyreach.com/privacy)
-- [Source and issues](https://github.com/preyreach/n8n-nodes-preyreach)
-- [n8n community-node installation](https://docs.n8n.io/integrations/community-nodes/installation/)
-
-MIT licensed. This community integration is not an n8n core node.
+MIT license.

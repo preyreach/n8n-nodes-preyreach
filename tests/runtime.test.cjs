@@ -1,194 +1,38 @@
-const { test } = require("node:test");
-const assert = require("node:assert/strict");
-const path = require("node:path");
-const pkg = require("../package.json");
-const nodePath = "../" + pkg.n8n.nodes[0];
-const mod = require(nodePath);
-const Node = Object.values(mod)[0];
-const node = new Node();
-const credentialName = node.description.credentials[0].name;
-const { decodeRpc, parseArgument } = require(
-  path.join(path.dirname(require.resolve(nodePath)), "transport.js"),
-);
-const operations = require(
-  path.join(path.dirname(require.resolve(nodePath)), "operations.json"),
-);
-const first = operations.find(
-  (o) =>
-    o.annotations?.readOnlyHint === true &&
-    !(o.inputSchema.required || []).length,
-);
-function context({
-  operation = first.name,
-  params = {},
-  items = [{ json: {} }],
-  responses = [],
-  continueOnFail = false,
-} = {}) {
-  const calls = [];
-  const ctx = {
-    getInputData: () => items,
-    getNode: () => ({
-      name: "Test",
-      type: "test",
-      typeVersion: 1,
-      position: [0, 0],
-      parameters: {},
-    }),
-    getNodeParameter: (n, i, def) =>
-      n === "operation" ? operation : (params[n] ?? def),
-    continueOnFail: () => continueOnFail,
-    helpers: {
-      httpRequestWithAuthentication: async (cred, opts) => {
-        calls.push({ cred, opts });
-        if (responses.length) {
-          const r = responses.shift();
-          if (r instanceof Error) throw r;
-          return r;
-        }
-        if (opts.body.method === "initialize")
-          return {
-            body: {
-              jsonrpc: "2.0",
-              id: 1,
-              result: { protocolVersion: "2025-06-18" },
-            },
-            headers: { "mcp-session-id": "test-session" },
-          };
-        if (opts.body.method.startsWith("notifications/"))
-          return { body: "", headers: {} };
-        return {
-          body: {
-            jsonrpc: "2.0",
-            id: opts.body.id,
-            result: { structuredContent: { ok: true }, content: [] },
-          },
-          headers: {},
-        };
-      },
-    },
-  };
-  return { ctx, calls };
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const pkg=require('../package.json');
+const file='../'+pkg.n8n.nodes[0];
+const Node=Object.values(require(file))[0],node=new Node();
+const folder=path.dirname(require.resolve(file));
+const operations=require(path.join(folder,'operations.json')),routes=require(path.join(folder,'routes.json'));
+const {parseArgument}=require(path.join(folder,'transport.js'));
+function sample(schema){
+ const type=Array.isArray(schema.type)?schema.type.find(t=>t!=='null'):schema.type;
+ if(schema.enum)return schema.enum[0];
+ if(type==='integer'||type==='number')return schema.minimum??1;
+ if(type==='boolean')return true;
+ if(type==='array')return Array.from({length:schema.minItems??1},()=>sample(schema.items??{type:'string'}));
+ if(type==='object')return Object.fromEntries((schema.required??[]).map(key=>[key,sample(schema.properties[key])]));
+ return 'fixture-123';
 }
-test("negotiates MCP, preserves session and item links, only sends authenticated requests to fixed product endpoint", async () => {
-  const { ctx, calls } = context({
-    items: [{ json: { a: 1 } }, { json: { a: 2 } }],
-  });
-  const out = await node.execute.call(ctx);
-  assert.deepEqual(
-    out[0].map((x) => x.pairedItem),
-    [{ item: 0 }, { item: 1 }],
-  );
-  assert.equal(calls.length, 4);
-  assert(calls.every((x) => x.cred === credentialName));
-  assert(
-    calls.every(
-      (x) =>
-        x.opts.url.startsWith("https://mcp.") &&
-        x.opts.url.endsWith("/mcp") &&
-        x.opts.disableFollowRedirect,
-    ),
-  );
-  assert.equal(calls[2].opts.headers["Mcp-Session-Id"], "test-session");
-  assert.equal(calls[2].opts.headers["MCP-Protocol-Version"], "2025-06-18");
-  assert.deepEqual(calls[2].opts.body.params.arguments, {});
+function context(op=operations[0],{items=[{json:{}}],response={statusCode:200,body:{ok:true}},error,params={},continueOnFail=false,confirm=true}={}) {
+ const calls=[];
+ const values={operation:op.name,confirmWrite:confirm};
+ for(const key of op.inputSchema.required??[])values[op.name+'__'+key]=sample(op.inputSchema.properties[key]);
+ Object.assign(values,params);
+ const ctx={getInputData:()=>items,getNode:()=>({name:'Test',type:'test',typeVersion:1,parameters:{},position:[0,0]}),getNodeParameter:(name,i,fallback)=>values[name]??fallback,continueOnFail:()=>continueOnFail,helpers:{httpRequestWithAuthentication:async(credential,options)=>{calls.push({credential,options});if(error)throw error;return response;}}};
+ return {ctx,calls};
+}
+test('each operation makes one native REST request with no MCP handshake, headers or envelope',async()=>{
+ for(const op of operations){const {ctx,calls}=context(op);const result=await node.execute.call(ctx);assert.equal(calls.length,1,op.name);const {credential,options}=calls[0];assert.equal(credential,node.description.credentials[0].name);assert.equal(options.method,routes[op.name].method);const url=new URL(options.url);assert.equal(url.protocol,'https:');assert(url.pathname.startsWith('/v1/'));assert(options.disableFollowRedirect);assert.equal(options.headers.Accept,'application/json');assert(!JSON.stringify(options).includes('jsonrpc'));assert(!JSON.stringify(options.headers).includes('MCP'));assert.deepEqual(result[0][0].json,{ok:true});}
 });
-test("decodes SSE with keepalives and checks response correlation", () => {
-  assert.deepEqual(
-    decodeRpc(
-      ':keepalive\n\nevent: message\ndata: {"id":4,"result":{"content":[]}}\n\n',
-      4,
-    ),
-    { content: [] },
-  );
-  assert.throws(() => decodeRpc({ id: 5, result: {} }, 4), /mismatched/);
-  assert.throws(
-    () => decodeRpc({ id: 4, error: { code: -1, message: "private" } }, 4),
-    /rejected/,
-  );
-});
-test("rejects invalid required inputs and preserves false and zero", () => {
-  assert.throws(
-    () => parseArgument("", { type: "string" }, true, "id"),
-    /required/,
-  );
-  assert.throws(
-    () => parseArgument("bad", { type: "array" }, true, "rows"),
-    /valid JSON/,
-  );
-  assert.throws(
-    () => parseArgument(3.1, { type: "integer" }, true, "page"),
-    /integer/,
-  );
-  assert.equal(
-    parseArgument(false, { type: "boolean" }, false, "enabled"),
-    false,
-  );
-  assert.equal(parseArgument(0, { type: "number" }, false, "count"), 0);
-});
-test("unknown operations cannot become arbitrary MCP calls", async () => {
-  const { ctx, calls } = context({ operation: "not_a_tool" });
-  await assert.rejects(() => node.execute.call(ctx), /supported operation/);
-  assert.equal(calls.length, 0);
-});
-test("write operations require explicit confirmation before any network call", async () => {
-  const write = operations.find((o) => o.annotations?.readOnlyHint !== true);
-  if (!write) return;
-  const { ctx, calls } = context({ operation: write.name });
-  await assert.rejects(() => node.execute.call(ctx), /confirmation/);
-  assert.equal(calls.length, 0);
-});
-test("MCP tool failures are not returned as success; continue-on-error retains item index", async () => {
-  const responses = [
-    { body: { id: 1, result: { protocolVersion: "2025-03-26" } }, headers: {} },
-    { body: "", headers: {} },
-    {
-      body: {
-        id: 2,
-        result: {
-          isError: true,
-          content: [{ type: "text", text: "raw details" }],
-        },
-      },
-      headers: {},
-    },
-  ];
-  const { ctx } = context({ responses, continueOnFail: true });
-  const out = await node.execute.call(ctx);
-  assert.match(out[0][0].json.error, /operation failed/i);
-  assert.deepEqual(out[0][0].pairedItem, { item: 0 });
-  assert(!JSON.stringify(out).includes("raw details"));
-});
-test("HTTP errors do not leak tokens or headers", async () => {
-  const err = new Error("Bearer SECRET_TOKEN");
-  err.statusCode = 401;
-  err.headers = { authorization: "Bearer SECRET_TOKEN" };
-  const { ctx } = context({ responses: [err], continueOnFail: true });
-  const out = await node.execute.call(ctx);
-  assert.match(out[0][0].json.error, /401/);
-  assert(!JSON.stringify(out).includes("SECRET_TOKEN"));
-});
-test("credentials enable n8n-managed DCR with a fixed resource URL", () => {
-  const C = Object.values(require("../" + pkg.n8n.credentials[0]))[0];
-  const c = new C();
-  assert.deepEqual(c.extends, ["oAuth2Api"]);
-  assert.equal(
-    c.properties.find((p) => p.name === "useDynamicClientRegistration").default,
-    true,
-  );
-  assert.equal(
-    c.properties.find((p) => p.name === "resourceUrl").default,
-    c.properties.find((p) => p.name === "serverUrl").default,
-  );
-  assert(!c.properties.some((p) => p.name === "clientSecret"));
-});
-
-test("network errors without status cannot leak request credentials", async () => {
-  const { ctx } = context({
-    responses: [new Error("request failed Bearer SECRET_TOKEN")],
-    continueOnFail: true,
-  });
-  const out = await node.execute.call(ctx);
-  assert.match(out[0][0].json.error, /service request failed/);
-  assert(!JSON.stringify(out).includes("SECRET_TOKEN"));
-});
+test('links outputs to the corresponding input item',async()=>{const {ctx,calls}=context(operations[0],{items:[{json:{a:1}},{json:{a:2}}]});const result=await node.execute.call(ctx);assert.equal(calls.length,2);assert.deepEqual(result[0].map(x=>x.pairedItem),[{item:0},{item:1}]);});
+test('encodes identifiers without exposing them as path or query structure',async()=>{const op=operations.find(o=>routes[o.name].path.includes(':'));if(!op)return;const key=routes[op.name].path.match(/:([A-Za-z][A-Za-z0-9]*)/)[1];const {ctx,calls}=context(op,{params:{[op.name+'__'+key]:'owned?item#one'}});await node.execute.call(ctx);assert(calls[0].options.url.includes('owned%3Fitem%23one'));assert.equal(new URL(calls[0].options.url).hash,'');assert(!calls[0].options.body?.[key]);});
+test('uses query pagination on GET without a request body',async()=>{const op=operations.find(o=>routes[o.name].method==='GET'&&o.inputSchema.properties?.offset);if(!op)return;const {ctx,calls}=context(op,{params:{['options_'+op.name]:{offset:50}}});await node.execute.call(ctx);assert.equal(new URL(calls[0].options.url).searchParams.get('offset'),'50');assert.equal(calls[0].options.body,undefined);});
+test('requires explicit confirmation before mutations',async()=>{const op=operations.find(o=>o.annotations?.readOnlyHint!==true);if(!op)return;const {ctx,calls}=context(op,{confirm:false});await assert.rejects(node.execute.call(ctx),/confirmation/);assert.equal(calls.length,0);});
+test('invalid required values fail before a network request',async()=>{const op=operations.find(o=>(o.inputSchema.required??[]).length);if(!op)return;const key=op.inputSchema.required[0];const {ctx,calls}=context(op,{params:{[op.name+'__'+key]:''}});await assert.rejects(node.execute.call(ctx),/required/);assert.equal(calls.length,0);});
+test('HTTP failures never copy secrets or raw provider errors into workflow data',async()=>{const error=Object.assign(new Error('Bearer SECRET; private response'),{statusCode:401,request:{headers:{Authorization:'Bearer SECRET'}}});const {ctx}=context(operations[0],{error,continueOnFail:true});const result=await node.execute.call(ctx);assert.match(result[0][0].json.error,/401/);assert(!JSON.stringify(result).includes('SECRET'));});
+test('204 responses become a successful JSON item',async()=>{const {ctx}=context(operations[0],{response:{statusCode:204,body:''}});assert.deepEqual((await node.execute.call(ctx))[0][0].json,{success:true});});
+test('rejects invalid JSON responses',async()=>{const {ctx}=context(operations[0],{response:{statusCode:200,body:'<html>error</html>'}});await assert.rejects(node.execute.call(ctx),/invalid JSON/);});
+test('parses valid JSON arrays and rejects wrong types and out-of-range values',()=>{assert.deepEqual(parseArgument('["a"]',{type:'array'},true,'values'),['a']);assert.throws(()=>parseArgument('{}',{type:'array'},true,'values'));assert.throws(()=>parseArgument(4,{type:'integer',maximum:3},true,'count'));});

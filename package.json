@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-preyreach",
-  "version": "1.0.1",
-  "description": "n8n community node for PreyReach: OAuth account connection and 5 workflow operations.",
+  "version": "2.0.0",
+  "description": "Native PreyReach REST API integration for n8n workflows.",
   "license": "MIT",
   "homepage": "https://preyreach.com",
   "keywords": [
@@ -39,7 +39,7 @@
     "n8nNodesApiVersion": 1,
     "strict": true,
     "credentials": [
-      "dist/credentials/PreyReachOAuth2Api.credentials.js"
+      "dist/credentials/PreyReachApi.credentials.js"
     ],
     "nodes": [
       "dist/nodes/PreyReach/Preyreach.node.js"
