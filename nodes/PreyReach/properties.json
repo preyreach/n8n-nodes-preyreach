@@ -1,5 +1,22 @@
 [
   {
+    "displayName": "Resource",
+    "name": "resource",
+    "type": "options",
+    "noDataExpression": true,
+    "options": [
+      {
+        "name": "Account",
+        "value": "account"
+      },
+      {
+        "name": "Searches",
+        "value": "searches"
+      }
+    ],
+    "default": "account"
+  },
+  {
     "displayName": "Operation",
     "name": "operation",
     "type": "options",
@@ -11,7 +28,23 @@
         "value": "account",
         "description": "Read the API key name and current search allowance. No account secrets are returned.",
         "action": "Account"
-      },
+      }
+    ],
+    "displayOptions": {
+      "show": {
+        "resource": [
+          "account"
+        ]
+      }
+    }
+  },
+  {
+    "displayName": "Operation",
+    "name": "operation",
+    "type": "options",
+    "noDataExpression": true,
+    "default": "get_search",
+    "options": [
       {
         "name": "Get Preyreach Search",
         "value": "get_search",
@@ -30,7 +63,14 @@
         "description": "Enrich a completed search result without charging those leads again.",
         "action": "Enrich Search"
       }
-    ]
+    ],
+    "displayOptions": {
+      "show": {
+        "resource": [
+          "searches"
+        ]
+      }
+    }
   },
   {
     "displayName": "Search ID",
@@ -42,6 +82,9 @@
       "show": {
         "operation": [
           "get_search"
+        ],
+        "resource": [
+          "searches"
         ]
       }
     },
@@ -57,6 +100,9 @@
       "show": {
         "operation": [
           "search_leads"
+        ],
+        "resource": [
+          "searches"
         ]
       }
     },
@@ -72,6 +118,9 @@
       "show": {
         "operation": [
           "enrich_search"
+        ],
+        "resource": [
+          "searches"
         ]
       }
     },
@@ -87,6 +136,9 @@
         "operation": [
           "search_leads",
           "enrich_search"
+        ],
+        "resource": [
+          "searches"
         ]
       }
     },

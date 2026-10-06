@@ -10,9 +10,13 @@ Install `n8n-nodes-preyreach` from **Settings → Community nodes** in your n8n 
 
 Create a PreyReach API key in your account and paste it into the **PreyReach API** credential. The key is sent only to `https://api.preyreach.com` as a Bearer header. Credentials can be tested with the account endpoint.
 
-**Upgrading from 1.x:** replace the OAuth credential with an API key. Version 2 uses the public REST API's search records and allowance, separately from older MCP searches. Saved-lead operations are not available in this API-key integration. Review existing workflows before running searches.
+**Upgrading from 1.x or 2.x:** replace the OAuth credential with an API key. Version 2 uses the public REST API's search records and allowance, separately from older MCP searches. Saved-lead operations are not available in this API-key integration. Review existing workflows before running searches.
 
-## Operations
+## Resources and operations
+
+Choose a **Resource**, then an **Operation**. Only operations and input fields for that resource are shown. Resources: Account, Searches.
+
+### Requests
 
 | Operation | HTTP request |
 | --- | --- |
