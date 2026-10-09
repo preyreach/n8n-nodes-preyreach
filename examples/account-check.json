@@ -1,46 +1,40 @@
 {
-  "name": "PreyReach account check",
-  "nodes": [
-    {
-      "parameters": {},
-      "id": "manual",
-      "name": "Manual Trigger",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        0,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "operation": "account"
-      },
-      "id": "account",
-      "name": "PreyReach",
-      "type": "n8n-nodes-preyreach.preyreach",
-      "typeVersion": 1,
-      "position": [
-        260,
-        0
-      ]
-    }
-  ],
-  "connections": {
-    "Manual Trigger": {
-      "main": [
-        [
-          {
-            "node": "PreyReach",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  }
+	"name": "PreyReach account check",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "manual",
+			"name": "Manual Trigger",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"operation": "account"
+			},
+			"id": "account",
+			"name": "PreyReach",
+			"type": "n8n-nodes-preyreach.preyreach",
+			"typeVersion": 1,
+			"position": [260, 0]
+		}
+	],
+	"connections": {
+		"Manual Trigger": {
+			"main": [
+				[
+					{
+						"node": "PreyReach",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	}
 }

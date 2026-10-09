@@ -18,11 +18,11 @@ Choose a **Resource**, then an **Operation**. Only operations and input fields f
 
 ### Requests
 
-| Operation | HTTP request |
-| --- | --- |
-| Account | `GET /v1/account` |
-| Submit search | `POST /v1/searches` |
-| Get search | `GET /v1/searches/:searchId` |
+| Operation               | HTTP request                         |
+| ----------------------- | ------------------------------------ |
+| Account                 | `GET /v1/account`                    |
+| Submit search           | `POST /v1/searches`                  |
+| Get search              | `GET /v1/searches/:searchId`         |
 | Enrich completed search | `POST /v1/searches/:searchId/enrich` |
 
 Search submission returns `id`, `status`, and `pollUrl`. Pass that `id` to Get Search. Use n8n's Wait node between checks while a search is queued or running. Enrichment requires a completed search belonging to the same API key.
@@ -40,3 +40,9 @@ Run `npm ci`, `npm run lint`, and `npm test` to build and validate the package w
 Product: [PreyReach](https://preyreach.com) · [Privacy](https://preyreach.com/privacy/) · [Agent skill](https://github.com/preyreach/agent-skill) · [MCP integration](https://github.com/preyreach/mcp-server)
 
 MIT license.
+
+## Release checks (3.1.0)
+
+Resource and Operation definitions are explicit in the TypeScript node source. This minor update preserves API endpoints, credential types and operation identifiers. Every publication must pass Prettier, the official n8n node CLI linter with zero warnings, the runtime tests, and the n8n community package scanner against both TypeScript source and compiled JavaScript. GitHub Actions runs these checks before publishing with npm provenance.
+
+Run `npm ci --ignore-scripts`, `npm test`, and `npm run review` before proposing a release.

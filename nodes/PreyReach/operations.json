@@ -1,85 +1,79 @@
 [
-  {
-    "name": "account",
-    "title": "Account",
-    "description": "Read the API key name and current search allowance. No account secrets are returned.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {},
-      "additionalProperties": false
-    },
-    "annotations": {
-      "readOnlyHint": true,
-      "destructiveHint": false
-    }
-  },
-  {
-    "name": "get_search",
-    "title": "Get Preyreach Search",
-    "description": "Read the status and results of a search owned by this API key.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {
-        "searchId": {
-          "type": "string",
-          "minLength": 1,
-          "description": "The searchId returned by search_leads."
-        }
-      },
-      "required": [
-        "searchId"
-      ],
-      "additionalProperties": false
-    },
-    "annotations": {
-      "readOnlyHint": true,
-      "destructiveHint": false
-    }
-  },
-  {
-    "name": "search_leads",
-    "title": "Search Preyreach Leads",
-    "description": "Submit a native REST search. Returns an id and pollUrl; use Get Search until completed. This consumes the API key search allowance.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {
-        "prompt": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 1000,
-          "description": "Example: find dentists in Austin with website and phone."
-        }
-      },
-      "required": [
-        "prompt"
-      ],
-      "additionalProperties": false
-    },
-    "annotations": {
-      "readOnlyHint": false,
-      "destructiveHint": false
-    }
-  },
-  {
-    "name": "enrich_search",
-    "title": "Enrich Search",
-    "description": "Enrich a completed search result without charging those leads again.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {
-        "searchId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        }
-      },
-      "required": [
-        "searchId"
-      ],
-      "additionalProperties": false
-    },
-    "annotations": {
-      "readOnlyHint": false
-    }
-  }
+	{
+		"name": "account",
+		"title": "Account",
+		"description": "Read the API key name and current search allowance. No account secrets are returned.",
+		"inputSchema": {
+			"type": "object",
+			"properties": {},
+			"additionalProperties": false
+		},
+		"annotations": {
+			"readOnlyHint": true,
+			"destructiveHint": false
+		}
+	},
+	{
+		"name": "get_search",
+		"title": "Get Preyreach Search",
+		"description": "Read the status and results of a search owned by this API key.",
+		"inputSchema": {
+			"type": "object",
+			"properties": {
+				"searchId": {
+					"type": "string",
+					"minLength": 1,
+					"description": "The searchId returned by search_leads."
+				}
+			},
+			"required": ["searchId"],
+			"additionalProperties": false
+		},
+		"annotations": {
+			"readOnlyHint": true,
+			"destructiveHint": false
+		}
+	},
+	{
+		"name": "search_leads",
+		"title": "Search Preyreach Leads",
+		"description": "Submit a native REST search. Returns an id and pollUrl; use Get Search until completed. This consumes the API key search allowance.",
+		"inputSchema": {
+			"type": "object",
+			"properties": {
+				"prompt": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 1000,
+					"description": "Example: find dentists in Austin with website and phone."
+				}
+			},
+			"required": ["prompt"],
+			"additionalProperties": false
+		},
+		"annotations": {
+			"readOnlyHint": false,
+			"destructiveHint": false
+		}
+	},
+	{
+		"name": "enrich_search",
+		"title": "Enrich Search",
+		"description": "Enrich a completed search result without charging those leads again.",
+		"inputSchema": {
+			"type": "object",
+			"properties": {
+				"searchId": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 128
+				}
+			},
+			"required": ["searchId"],
+			"additionalProperties": false
+		},
+		"annotations": {
+			"readOnlyHint": false
+		}
+	}
 ]

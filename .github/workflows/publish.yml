@@ -22,8 +22,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npm run lint
       - run: npm test
+      - run: npm run review
       - name: Check release version
         id: release
         run: |

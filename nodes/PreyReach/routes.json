@@ -1,18 +1,18 @@
 {
-  "search_leads": {
-    "method": "POST",
-    "path": "/v1/searches"
-  },
-  "get_search": {
-    "method": "GET",
-    "path": "/v1/searches/:searchId"
-  },
-  "account": {
-    "method": "GET",
-    "path": "/v1/account"
-  },
-  "enrich_search": {
-    "method": "POST",
-    "path": "/v1/searches/:searchId/enrich"
-  }
+	"search_leads": {
+		"method": "POST",
+		"path": "/v1/searches"
+	},
+	"get_search": {
+		"method": "GET",
+		"path": "/v1/searches/:searchId"
+	},
+	"account": {
+		"method": "GET",
+		"path": "/v1/account"
+	},
+	"enrich_search": {
+		"method": "POST",
+		"path": "/v1/searches/:searchId/enrich"
+	}
 }

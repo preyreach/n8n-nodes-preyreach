@@ -1,58 +1,62 @@
 {
-  "name": "n8n-nodes-preyreach",
-  "version": "3.0.0",
-  "description": "Native PreyReach REST API integration for n8n workflows.",
-  "license": "MIT",
-  "homepage": "https://preyreach.com",
-  "keywords": [
-    "n8n-community-node-package",
-    "n8n",
-    "preyreach",
-    "oauth",
-    "automation"
-  ],
-  "author": {
-    "name": "PreyReach",
-    "url": "https://preyreach.com",
-    "email": "saeedmshdi@gmail.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/preyreach/n8n-nodes-preyreach.git"
-  },
-  "bugs": {
-    "url": "https://github.com/preyreach/n8n-nodes-preyreach/issues"
-  },
-  "scripts": {
-    "build": "n8n-node build",
-    "dev": "n8n-node dev",
-    "lint": "n8n-node lint",
-    "lint:fix": "n8n-node lint --fix",
-    "test": "npm run build && node --test tests/*.test.cjs",
-    "prepublishOnly": "npm run lint && npm test"
-  },
-  "files": [
-    "dist",
-    "examples"
-  ],
-  "n8n": {
-    "n8nNodesApiVersion": 1,
-    "strict": true,
-    "credentials": [
-      "dist/credentials/PreyReachApi.credentials.js"
-    ],
-    "nodes": [
-      "dist/nodes/PreyReach/Preyreach.node.js"
-    ]
-  },
-  "devDependencies": {
-    "@n8n/node-cli": "0.49.1",
-    "typescript": "5.9.2",
-    "eslint": "9.32.0",
-    "prettier": "3.6.2",
-    "@types/node": "22.19.15"
-  },
-  "peerDependencies": {
-    "n8n-workflow": "*"
-  }
+	"name": "n8n-nodes-preyreach",
+	"version": "3.1.0",
+	"description": "Native PreyReach REST API integration for n8n workflows.",
+	"license": "MIT",
+	"homepage": "https://preyreach.com",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"preyreach",
+		"oauth",
+		"automation"
+	],
+	"author": {
+		"name": "PreyReach",
+		"url": "https://preyreach.com",
+		"email": "saeedmshdi@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/preyreach/n8n-nodes-preyreach.git"
+	},
+	"bugs": {
+		"url": "https://github.com/preyreach/n8n-nodes-preyreach/issues"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint && eslint . --max-warnings=0",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "npm run build && node --test tests/*.test.cjs",
+		"prepublishOnly": "npm test && npm run review",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"review": "npm run format:check && npm run lint && node scripts/review.mjs"
+	},
+	"files": [
+		"dist",
+		"examples"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/PreyReachApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/PreyReach/Preyreach.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.51.4",
+		"typescript": "5.9.2",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"@types/node": "22.19.15",
+		"@n8n/scan-community-package": "0.38.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
 }
