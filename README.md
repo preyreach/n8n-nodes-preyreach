@@ -29,7 +29,7 @@ Search submission returns `id`, `status`, and `pollUrl`. Pass that `id` to Get S
 
 ## Workflow behavior
 
-Each input item makes one API request and produces one linked output item. Optional pagination fields can be passed through the node's options; list responses retain their next-page cursor or offset. Write operations require the node's explicit confirmation switch. Failed requests stop the workflow unless **Continue On Fail** is enabled. HTTP errors are summarized without including credentials or raw request headers.
+Each input item produces one linked output item with the original response envelope. List operations offer **Return All** or a **Limit** (default 50). The node follows paging tokens internally and combines the result arrays. Single-resource and write operations make one request. Selecting a write operation is sufficient; no extra confirmation checkbox is required. Failed requests stop the workflow unless **Continue On Fail** is enabled. HTTP errors omit credentials and raw request headers.
 
 Requests use the fixed product API origin, encode resource identifiers, and do not follow redirects. Use a dedicated account for automation when you want separate access and data. Account ownership, workspace permissions, billing limits, and entitlement checks are enforced by the product API.
 
@@ -41,7 +41,7 @@ Product: [PreyReach](https://preyreach.com) · [Privacy](https://preyreach.com/p
 
 MIT license.
 
-## Release checks (3.1.0)
+## Release checks (3.2.0)
 
 Resource and Operation definitions are explicit in the TypeScript node source. This minor update preserves API endpoints, credential types and operation identifiers. Every publication must pass Prettier, the official n8n node CLI linter with zero warnings, the runtime tests, and the n8n community package scanner against both TypeScript source and compiled JavaScript. GitHub Actions runs these checks before publishing with npm provenance.
 

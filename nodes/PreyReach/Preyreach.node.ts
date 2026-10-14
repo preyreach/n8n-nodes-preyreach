@@ -13,16 +13,26 @@ export class Preyreach implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'PreyReach',
 		name: 'preyreach',
-		icon: { light: 'file:preyreach.svg', dark: 'file:preyreach.svg' },
+		icon: {
+			light: 'file:preyreach.svg',
+			dark: 'file:preyreach.svg',
+		},
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		description: 'Automate your PreyReach account',
-		defaults: { name: 'PreyReach' },
+		defaults: {
+			name: 'PreyReach',
+		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
-		credentials: [{ name: 'preyreachApi', required: true }],
+		credentials: [
+			{
+				name: 'preyreachApi',
+				required: true,
+			},
+		],
 		properties: [
 			{
 				displayName: 'Resource',
@@ -137,22 +147,9 @@ export class Preyreach implements INodeType {
 				},
 				description: 'Search identifier returned by Submit Search',
 			},
-			{
-				displayName: 'Confirm Write Operation',
-				name: 'confirmWrite',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						operation: ['search_leads', 'enrich_search'],
-						resource: ['searches'],
-					},
-				},
-				description:
-					'Whether to allow this operation to create or update data and use the API key search allowance',
-			},
 		],
 	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		return executeOperations(
 			this,

@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-preyreach",
-	"version": "3.1.0",
+	"version": "3.2.0",
 	"description": "Native PreyReach REST API integration for n8n workflows.",
 	"license": "MIT",
 	"homepage": "https://preyreach.com",
